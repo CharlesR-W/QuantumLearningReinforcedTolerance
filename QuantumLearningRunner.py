@@ -1,13 +1,20 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Nov 26 17:00:17 2021
+from QuantumCircuitEnvironment import QuantumCircuitEnvironment
+import numpy as np
 
-@author: CharlesRW
-"""
+num_qubits = 1
+num_gates = 2
+num_samples = 15
+sig = 0.3
+gateNoiseParams = [[sig, sig, sig], [sig, sig, sig], sig]
+targetBigRho = np.zeros([2**num_qubits, 2**num_qubits, 2**num_qubits])
+targetBigRho[0,0,0] = 1
+targetBigRho[1,1,1] = 1
+
+myQuantumCircuitEnvironment = QuantumCircuitEnvironment(num_qubits, num_gates, num_samples, gateNoiseParams, targetBigRho)
 
 from tensorforce.environments import Environment
 environment = Environment.create(
-    environment=CustomEnvironment, max_episode_timesteps=100
+    environment=myQuantumCircuitEnvironment, max_episode_timesteps=2
 )
 
 from tensorforce.agents import Agent
@@ -16,14 +23,12 @@ agent = Agent.create(
 )
 
 
-from tensorforce.agents import Runner
+from tensorforce.execution import Runner
 runner = Runner(
-    agent=agent
+    agent=agent,
     environment=environment
 )
 
-runner.run(num_episodes=200)
-
-runner.run(num_episodes=100, evaluation=True)
+runner.run(num_episodes=1, evaluation=True)
 
 runner.close()
