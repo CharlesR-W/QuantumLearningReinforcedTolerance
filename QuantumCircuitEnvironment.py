@@ -97,17 +97,13 @@ class QuantumCircuitEnvironment(Environment):
         
         noisyCircuit = QuantumCircuit(num_qubits, 0)
         for action in self.action_list:
-             #TODO make these gate implementations noisy
-            # use np.random.choice(a, size=None, replace=True, p=None) here
 
             if action < n
                 qbit_idx = action
-                noisyCircuit = applyRz(noisyCircuit, qbit_idx)
-                #noisyCircuit.Rz(np.pi/8, qbit_idx)
+                applyR(noisyCircuit, qbit_idx)
             elif action < 2*n
                 qbit_idx = action - n
-                noisyCircuit = applyS(noisyCircuit, qbit_idx)
-                #noisyCircuit.s(qbit_idx)
+                applyS(noisyCircuit, qbit_idx)
             else
                 tmp_idx = action - 2*n
                 assert tmp_idx < n_pairs #check we're not out of bounds
@@ -117,23 +113,38 @@ class QuantumCircuitEnvironment(Environment):
         return noisyCircuit
     
     
-    def applyRz(circuit, qbit_idx):
+    def applyR(circuit, qbit_idx):
+        sig = 0.01
+        # U(theta,0,0) = R(theta)
+        mu_theta = np.pi/4
+        sig_theta = sig
+        mu_phi = 0
+        sig_phi = sig
+        mu_lam = 0
+        sig_lam = sig
 
-        #TODO
-        # use UGate(theta, phi, lam[, label])
-        # use theta = np.random.normal(loc=mu_th, scale = TODO)
-        #phi = np.random.normal(loc=mu_phi, scale = TODO)
+        theta = np.random.normal(loc=mu_theta, scale = sig_theta)
+        phi = np.random.normal(loc=mu_phi, scale = sig_phi)
+        lam = np.random.normal(loc=mu_lam, scale = sig_lam)
 
-        return circuit
+        circuit.u(theta,phi,lam, qbit_idx)
 
     def applyS(circuit, qbit_idx):
-
-        #TODO
-        # use UGate(theta, phi, lam[, label])
-        # use theta = np.random.normal(loc=mu_th, scale = TODO)
-        #phi = np.random.normal(loc=mu_phi, scale = TODO)
+        #U(0,pi/2,0) = S
+        sig = 0.01
+        mu_theta = 0
+        sig_theta = sig
+        mu_phi = np.pi/2
+        sig_phi = sig
+        mu_lam = 0
+        sig_lam = sig
         
-        return circuit
+
+        theta = np.random.normal(loc=mu_theta, scale = sig_theta)
+        phi = np.random.normal(loc=mu_phi, scale = sig_phi)
+        lam = np.random.normal(loc=mu_lam, scale = sig_lam)
+
+        circuit.u(theta,phi,lam, qbit_idx)
 
 
     def getSampledBigRho(self):
@@ -156,6 +167,7 @@ class QuantumCircuitEnvironment(Environment):
             rewards[basis_state] = self.calculateReward(rhomixed, basis_state)
         
         #TODO terminal
+        terminal = False #CHECK
         observation[:bits*n**2-1] = np.flatten(np.real(rhomixed))
         observation[bits*n**2:] = np.flatten(np.imag(rhomixed))
         return observation, reward, terminal
