@@ -35,14 +35,14 @@ ket_rho_tradeoff = 0
 # #circ.s(0)
 # targetBigRho[1] = qi.DensityMatrix.from_instruction(circ)
 
-targetBigState = np.zeros((2**(num_qubits),2**(num_qubits)))
+targetBigState = np.zeros((2**(num_qubits),2**(num_qubits)),dtype='complex')
 for basis_id in range(2**(num_qubits)):
     binary = np.binary_repr(basis_id,width=num_qubits)
     circ = QuantumCircuit(num_qubits)
     circ.initialize(binary,circ.qubits)
     ####Put gates here
-    circ.ry(np.pi/8, 0)
-    #circ.s(0)
+    #circ.ry(np.pi/8, 0)
+    circ.s(0)
     ####
     targetBigState[basis_id] = qi.Statevector.from_instruction(circ)
 
@@ -51,13 +51,13 @@ myQuantumCircuitEnvironment = QuantumCircuitEnvironment(num_qubits, num_gates, n
 
 from tensorforce.environments import Environment
 environment = Environment.create(
-    environment=myQuantumCircuitEnvironment, max_episode_timesteps=1000
+    environment=myQuantumCircuitEnvironment, max_episode_timesteps=100
 )
 
-batch_size = 5
+batch_size = 10
 from tensorforce.agents import Agent
 agent = Agent.create(
-    agent='ac', environment=environment, batch_size=batch_size, learning_rate=0.01, exploration = 0.01
+    agent='ppo', environment=environment, batch_size=batch_size, learning_rate=0.0001, exploration = 0.001
 )
 
 # Train for num_episodes

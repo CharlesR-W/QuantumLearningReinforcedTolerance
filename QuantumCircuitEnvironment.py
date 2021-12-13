@@ -345,10 +345,10 @@ class QuantumCircuitEnvironment(Environment):
 
     def calculateKetReward(self, statevector, basis_id):
         '''calculate the ket part of the RL reward given a statevector and the target statevector in a particular basis_id'''
-        
-        inner_product = np.inner(np.conj(self.targetBigState[basis_id]), statevector)
-        reward = (np.abs(inner_product))*(1 + np.cos(np.angle(inner_product)))/2
-        return np.real(reward) - 0.95
+        bra_targ = np.conj(self.targetBigState[basis_id])
+        inner_product = np.inner(bra_targ , statevector)
+        reward = (np.abs(inner_product))*(1 + np.cos(np.angle(inner_product)*2))/2
+        return (np.real(reward) - 0.995)*1000
 
 
     def getNoisyAngles(self, noise=True):
