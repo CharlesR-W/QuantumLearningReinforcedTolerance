@@ -49,11 +49,15 @@ from tensorforce.core.networks import AutoNetwork
 
 from tensorforce.agents import Agent
 agent = Agent.create(
-    agent='ppo', environment=environment, batch_size=batch_size
-    , learning_rate=dict(type='exponential', unit='episodes', num_steps=100, initial_value=1.0, decay_rate=1e-3) 
-    , exploration = dict(type='exponential', unit='episodes', num_steps=1000, initial_value=1.0, decay_rate=1e-1)
-    , l2_regularization = 0.00
-    ,memory = 'minimum'
+    agent=ProximalPolicyOptimization(
+        states=environment.states()
+        , actions=environment.actions()
+        , learning_rate=dict(type='exponential', unit='episodes', num_steps=100, initial_value=1.0, decay_rate=1e-3)
+        , exploration = dict(type='exponential', unit='episodes', num_steps=1000, initial_value=1.0, decay_rate=1e-1)
+        , batch_size=batch_size
+        , max_episode_timesteps=environment.max_episode_timesteps()
+        )
+    #, environment=environment
     #, tracking = 'all'
     #, memory = 2000
 )
